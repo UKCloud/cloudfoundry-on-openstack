@@ -1,5 +1,5 @@
 # Deploying Cloud Foundry on OpenStack
-This is a collection of automation and deployment scripts intended to be used tovcreating a private private cloud foundry deployment within a UKCloud Cloud Native Infrastructure Project,
+This is a collection of automation and deployment scripts intended to be used to create a private cloud foundry deployment within a UKCloud Cloud Native Infrastructure Project,
 
 License and Authors
 -------------------

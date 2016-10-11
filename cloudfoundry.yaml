@@ -1,0 +1,146 @@
+heat_template_version: 2015-04-30
+
+parameters:
+  flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: t1.small
+    constraints:
+      - custom_constraint: nova.flavor
+  image:
+    type: string
+    description: Image ID or image name to use for the server
+    default: "CentOS 7"
+    constraints:
+      - custom_constraint: glance.image
+
+  dns_host1:
+    type: string
+    description: Primary DNS Server 
+    default: "8.8.8.8"
+
+  dns_host2:
+    type: string
+    description: Secondary DNS Server
+    default: "8.8.4.4"
+
+  network_prefix:
+    type: string
+    description: A CIDR /16 address space used to deploy Cloud Foundry
+    default: "192.168"
+
+resources:
+  internal_net:
+    type: OS::Neutron::Net
+    properties:
+      admin_state_up: true
+      name: internal-net
+
+  internal_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network: { get_resource: internal_net }
+      cidr: 
+        list_join: ['.', [ {get_param: network_prefix}, '2.0/24']] 
+      dns_nameservers: [ {get_param: dns_host1}, {get_param: dns_host2} ]
+      ip_version: 4
+      name: cf-subnet
+
+  lb_net:
+    type: OS::Neutron::Net
+    properties:
+      admin_state_up: true
+      name: lb-net
+
+  lb_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network: { get_resource: lb_net }
+      cidr: 
+        list_join: ['.', [ {get_param: network_prefix}, '0.0/24']] 
+      dns_nameservers: [ {get_param: dns_host1}, {get_param: dns_host2} ]
+      ip_version: 4
+      name: lb-subnet
+
+  docker_services_net:
+    type: OS::Neutron::Net
+    properties:
+      admin_state_up: true
+      name: internal-net-docker-services
+
+  docker_services_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network: { get_resource: docker_services_net }
+      cidr: 
+        list_join: ['.', [ {get_param: network_prefix}, '5.0/24']] 
+      dns_nameservers: [ {get_param: dns_host1}, {get_param: dns_host2} ]
+      ip_version: 4
+      name: docker-services-subnet
+
+  logsearch_net:
+    type: OS::Neutron::Net
+    properties:
+      admin_state_up: true
+      name: internal-net-logsearch
+
+  logsearch_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network: { get_resource: logsearch_net }
+      cidr: 
+        list_join: ['.', [ {get_param: network_prefix}, '7.0/24']] 
+      dns_nameservers: [ {get_param: dns_host1}, {get_param: dns_host2} ]
+      ip_version: 4
+      name: logsearch-subnet
+
+  router:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info: { network: internet }
+      name: router
+
+  int-ext-interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet: { get_resource: internal_subnet }
+
+  int-ext-docker-services-interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet: { get_resource: docker_services_subnet }
+
+  int-ext-lb-interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet: { get_resource: lb_subnet }
+  
+  int-ext-logsearch-interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet: { get_resource: logsearch_subnet }
+  
+  bastion_keypair:
+    type: OS::Nova::KeyPair
+    properties:
+      save_private_key: true
+      name: bastion-keypair
+
+  bastion_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: bastion
+      description: Bastion Security Groups
+      rules:
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 22
+          port_range_max: 22
+        - protocol: icmp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: -1
+          port_range_max: -1

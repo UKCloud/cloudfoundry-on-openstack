@@ -9,7 +9,9 @@ before_install:
   - bundle exec rake setup
   - sudo apt-get -y install python3-pip python-dev
 
-script: bundle exec rake deploy
+install:
+  - bundle install
+  - bundle exec rake deploy
 
 after_install: bundle exec rake cleanup
 

@@ -6,6 +6,7 @@ echo "INSTALLING OPENSTACK CLI"
 
 pip install python-openstackclient
 pip install python-heatclient
+pip install python-keystoneclient
 pip install python-hosts
 
 

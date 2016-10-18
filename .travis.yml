@@ -9,6 +9,7 @@ before_install:
   - bundle install
   - bundle exec rake setup
   - sudo apt-get -y install python3-pip python-dev
+  - sudo pip install -r spec/fixtures/requirements.txt
 
 script:
   - bundle exec rake deploy

@@ -1,0 +1,20 @@
+sudo: required
+language: ruby
+  - 2.3.0
+
+
+
+
+before_install:
+  - bundle exec rake setup
+  - sudo apt-get -y install python3-pip python-dev
+
+script: bundle exec rake deploy
+
+after_install: bundle exec rake cleanup
+
+
+notifications:
+  slack:
+    secure: YV2pFWnEV9ydw/r4CkUeZ96iyNJ+nqu8LBWLyTplAthjHMfMEOzqutV72pSmso6FGauWRbA4JkYqM45MT1tJ5zV5e0vP7WqqQsNTG3A9vHW6X6KaDp8CLEdznTm1UO2DKWBAJMVoafCfxYEOqFn7QpHbglLajL+R/smyWZSUrcpgvBhPlfo8Btqop0dDGjIm/qYeIyVQy7Hc8Z3sL/RFQPM149jOjPkKSZ8ANlUcDDkQ9MX7A2wBUk3pFsFtgn6k6XWtZAlfEFyC8iDMsGIiJFfhaVssNJYCQ47bzgjNt2Kysd7vU2eTHjoHa6Wk4Xw4TTGjpuL414fiyrB1Ptjt9vF2yl3u8ho2lnjlpCE+UsYl5av5sZfyBM6tMbW1bAf12RCF7iYnoacMz0D5+aE3e6ghFBXCUNbTZBMMPXgTlqAoV/x9v21cvSrnjXWMl4dsy/uUQlUHLiio+2iUwqwFzxeB3wNCK9M94U87ZRHq+MJNph3YxgV9TDaCyHGGOtV10iuTnQRpABI5yddyGR8iRcz53B5i7pGH+0aU8w+tJ3ZxaEv2ofWxhlkgXiGFnbJQ5lbAnoBqjrln5vJl4mEbrkZcj2t2Msx3iuBGaAmRR8ZOHhOeB2JYYrv7ojUnTONPq771uLTSkVSIFBkn/zGossLz4kEBIyG2tWLLgLV5tRk=
+  email:

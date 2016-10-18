@@ -1,0 +1,5 @@
+python-openstackclient
+python-heatclient
+python-keystoneclient
+python-hosts
+

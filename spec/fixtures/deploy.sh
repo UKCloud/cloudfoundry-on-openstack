@@ -3,7 +3,7 @@
 echo "IN DEPLOY SCRIPT"
 
 echo "SETTING ENVIRONMENT FILE"
-spec/fixtures/write_environment_yaml.py
+sudo spec/fixtures/write_environment_yaml.py
 
 echo "DEPLOYING INITIAL STACK"
 
@@ -15,7 +15,7 @@ echo "GETTING BASTION IP"
 bastion_ip=`openstack stack output show tl_cloudfoundry bastion_ip -f value -c output_value`
 
 
-echo "GETTING BASTIO SSH KEY"
+echo "GETTING BASTION SSH KEY"
 
 rm -f /tmp/key.pem
 openstack stack output show tl_cloudfoundry bastion_private_key -f value -c output_value > /tmp/key.pem

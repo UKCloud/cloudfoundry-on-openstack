@@ -16,6 +16,7 @@ script:
   - bundle exec rake deploy:all
 
 after_failure: bundle exec rake cleanup
+after_success: bundle exec rake cleanup
 
 
 notifications:

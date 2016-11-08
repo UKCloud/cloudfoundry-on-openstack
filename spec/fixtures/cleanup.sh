@@ -2,6 +2,19 @@
 
 echo "IN CLEANUP SCRIPT"
 
+echo "GETTING BASTION SSH KEY"
+
+rm -f /tmp/key.pem
+openstack stack output show tl_cloudfoundry bastion_private_key -f value -c output_value > /tmp/key.pem
+chmod 400 /tmp/key.pem
+
+
+echo "CLEAR SSH KNOWN_HOSTS ENTRY"
+
+ssh-keygen -f ~/.ssh/known_hosts -R bastion
+echo "SETTING HOST ENTRY"
+sudo spec/fixtures/set_host.py $bastion_ip
+
 echo "GETTING IP OF DEPLOYED INSTANCE"
 bastion_ip=`openstack stack output show tl_cloudfoundry bastion_ip -f value -c output_value`
 

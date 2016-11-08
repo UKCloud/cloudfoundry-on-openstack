@@ -4,11 +4,7 @@ echo "IN DEPLOY SCRIPT"
 
 echo "SETTING ENVIRONMENT FILE"
 spec/fixtures/write_environment_yaml.py
-if [ -x environment.yaml ]; then
-  echo "environment file written"
-else
-  echo "environment file not written!"
-fi
+
 echo "Current Directory:"
 pwd
 echo "Files In Directory:"

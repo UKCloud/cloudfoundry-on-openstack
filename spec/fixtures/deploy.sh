@@ -9,8 +9,10 @@ if [ -x environment.yaml ]; then
 else
   echo "environment file not written!"
 fi
+echo "Current Directory:"
 pwd
-ls
+echo "Files In Directory:"
+ls -alh
 
 echo "DEPLOYING INITIAL STACK"
 

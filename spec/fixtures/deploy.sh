@@ -4,7 +4,7 @@ echo "IN DEPLOY SCRIPT"
 
 echo "DEPLOYING INITIAL STACK"
 
-openstack stack create -f yaml -t cloudfoundry.yaml tl_cloudfoundry --wait
+openstack stack create --debug -f yaml -t cloudfoundry.yaml tl_cloudfoundry -e environment.yaml --wait
 
 
 echo "GETTING BASTION IP"

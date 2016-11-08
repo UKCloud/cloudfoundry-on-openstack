@@ -20,7 +20,7 @@ options = Net::SSH::Config.for(host)
 
 set :host,        options[:host_name] || host
 set :ssh_options, options
-options[:user] = 'centos'
+options[:user] = 'ubuntu'
 options[:keys] = [ "/tmp/key.pem" ]
 
 set :request_pty, true

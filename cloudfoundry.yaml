@@ -10,7 +10,7 @@ parameters:
   image:
     type: string
     description: Image ID or image name to use for the server
-    default: "CentOS 7"
+    default: "Ubuntu 16.04 amd64"
     constraints:
       - custom_constraint: glance.image
 
@@ -28,6 +28,35 @@ parameters:
     type: string
     description: A CIDR /16 address space used to deploy Cloud Foundry
     default: "192.168"
+
+  traveling_bosh_admin_version:
+    type: string
+    description: Tagged version of traveling-bosh from https://github.com/cloudfoundry-community/traveling-bosh
+    default: v1.2809.0
+
+  traveling_cf_admin_version:
+    type: string
+    description: Tagged version of traveling-cf-admin from https://github.com/cloudfoundry-community/traveling-cf-admin
+    default: v6.17.0
+
+  openstack_user:
+    type: string
+    description: Openstack Login Username
+
+  openstack_password:
+    type: string
+    description: Openstack Login Password
+
+  openstack_project:
+    type: string
+    description: Openstack Project
+
+  openstack_auth_url:
+    type: string
+    description: Openstack Keystone Auth URL
+
+
+
 
 resources:
   internal_net:
@@ -117,13 +146,13 @@ resources:
     properties:
       router_id: { get_resource: router }
       subnet: { get_resource: lb_subnet }
-  
+
   int-ext-logsearch-interface:
     type: OS::Neutron::RouterInterface
     properties:
       router_id: { get_resource: router }
       subnet: { get_resource: logsearch_subnet }
-  
+
   bastion_keypair:
     type: OS::Nova::KeyPair
     properties:
@@ -216,6 +245,63 @@ resources:
       key_name: { get_resource: bastion_keypair }
       networks:
         - port: { get_resource: bastion_port }
+      user_data_format: SOFTWARE_CONFIG
+      user_data: { get_resource: bastion_init }
+
+  bastion_init:
+    type: OS::Heat::MultipartMime
+    properties:
+      parts:
+      - config: { get_resource: included_files }
+      - config: { get_resource: run_scripts }
+
+  included_files:
+    type: OS::Heat::CloudConfig
+    properties:
+      cloud_config:
+        manage_etc_hosts: "localhost"
+        write_files:
+        - path: /tmp/prepare.sh
+          permissions: 0555
+          content:
+            str_replace:
+              params:
+                TB_VERSION: { get_param: traveling_bosh_admin_version }
+                TCF_VERSION: { get_param: traveling_cf_admin_version }
+              template: { get_file: https://raw.githubusercontent.com/UKCloud/cloudfoundry-on-openstack/master/files/prepare.sh }
+        - path: /home/ubuntu/workspace/settings.yml
+          permissions: 0666
+          content:
+            str_replace:
+              params:
+                OS_USER: { get_param: openstack_user }
+                OS_PASSWORD: { get_param: openstack_password }
+                OS_PROJECT: { get_param: openstack_project }
+                OS_AUTH_URL: { get_param: openstack_auth_url }
+                BOSH_SUBNET_ID: { get_attr: [internal_subnet,network_id] }
+                BOSH_FIXED_IP: 192.168.2.200
+              template: { get_file: https://raw.githubusercontent.com/UKCloud/cloudfoundry-on-openstack/master/files/settings.yml }
+        - path: /tmp/patch/cloud.rb
+          content: { get_file: https://raw.githubusercontent.com/UKCloud/cloudfoundry-on-openstack/master/files/patch/cloud.rb }
+
+  stack_continue:
+    type: OS::Heat::WaitCondition
+    properties:
+      handle: { get_resource: stack_continue_handle }
+      timeout: 240
+
+  stack_continue_handle:
+    type: OS::Heat::WaitConditionHandle
+
+  run_scripts:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: script
+      config:
+        str_replace:
+          params:
+            CONTINUE_URL: { get_attr: [stack_continue_handle, curl_cli] }
+          template: { get_file: files/run_scripts.sh }
 
   bastion_ip_assoc:
     type: OS::Neutron::FloatingIPAssociation

@@ -1,2 +1,4 @@
 *.pem
 Gemfile.lock
+environment.yaml
+environment.yml

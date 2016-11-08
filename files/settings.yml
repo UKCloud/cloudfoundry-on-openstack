@@ -1,0 +1,18 @@
+---
+bosh:
+  name: firstbosh
+provider:
+  name: openstack
+  credentials:
+    openstack_username: OS_USER
+    openstack_api_key: OS_PASSWORD
+    openstack_tenant: OS_PROJECT
+    openstack_auth_url: OS_AUTH_URL
+    openstack_region: ''
+  options:
+    boot_from_volume: false
+address:
+  subnet_id: BOSH_SUBNET_ID
+  ip: BOSH_FIXED_IP
+
+

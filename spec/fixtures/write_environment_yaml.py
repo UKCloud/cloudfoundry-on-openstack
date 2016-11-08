@@ -12,6 +12,6 @@ data = dict(
 )
 
 
-with open('env2.yml', 'w') as outfile:
+with open('environment.yaml', 'w') as outfile:
     yaml.dump(data, outfile, default_flow_style=False)
 

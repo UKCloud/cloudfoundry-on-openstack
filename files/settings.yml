@@ -1,6 +1,7 @@
 ---
 bosh:
   name: firstbosh
+  stemcell_path: "/home/ubuntu/workspace/deployments/firstbosh/bosh-stemcell-STEMCELL_VERSION-openstack-kvm-ubuntu-trusty-go_agent.tgz"
 provider:
   name: openstack
   credentials:

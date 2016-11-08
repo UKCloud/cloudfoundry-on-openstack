@@ -29,7 +29,7 @@ end
 
 describe "It Deployed A BOSH Micro Instance Succesfully:" do
 
-  describe command('cd /home/ubuntu/workspace && /home/ubuntu/bin/traveling-bosh/bosh -u admin -p admin target https://192.168.2.10:25555') do
+  describe command('cd /home/ubuntu/workspace && /usr/bin/traveling-bosh/bosh -u admin -p admin target https://192.168.2.200:25555') do
     its(:exit_status) { should eq 0 }
   end
 
@@ -38,7 +38,7 @@ describe "It Deployed A BOSH Micro Instance Succesfully:" do
 
     puts "CLEANING UP"
 
-      #command('cd /home/ubuntu/workspace && /home/ubuntu/bin/traveling-bosh/bosh bootstrap delete')
+      #command('cd /home/ubuntu/workspace && /usr/bin/traveling-bosh/bosh bootstrap delete')
   end
 
 

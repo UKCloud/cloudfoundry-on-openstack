@@ -55,6 +55,12 @@ parameters:
     type: string
     description: Openstack Keystone Auth URL
 
+  bosh_stemcell_version:
+    type: string
+    description: version number of ubuntu stemcell to be used
+    default: 3262.12
+
+
 
 
 
@@ -261,6 +267,13 @@ resources:
       cloud_config:
         manage_etc_hosts: "localhost"
         write_files:
+        - path: /tmp/update_wait_condition.sh
+          permissions: 0555
+          content:
+            str_replace:
+              params:
+                CONTINUE_URL: { get_attr: [stack_continue_handle, curl_cli] }
+              template: { get_file: files/update_wait_condition.sh }
         - path: /tmp/prepare.sh
           permissions: 0555
           content:
@@ -268,7 +281,8 @@ resources:
               params:
                 TB_VERSION: { get_param: traveling_bosh_admin_version }
                 TCF_VERSION: { get_param: traveling_cf_admin_version }
-              template: { get_file: https://raw.githubusercontent.com/UKCloud/cloudfoundry-on-openstack/master/files/prepare.sh }
+                STEMCELL_VERSION: { get_param: bosh_stemcell_version }
+              template: { get_file: files/prepare.sh }
         - path: /home/ubuntu/workspace/settings.yml
           permissions: 0666
           content:
@@ -280,15 +294,15 @@ resources:
                 OS_AUTH_URL: { get_param: openstack_auth_url }
                 BOSH_SUBNET_ID: { get_attr: [internal_subnet,network_id] }
                 BOSH_FIXED_IP: 192.168.2.200
-              template: { get_file: https://raw.githubusercontent.com/UKCloud/cloudfoundry-on-openstack/master/files/settings.yml }
-        - path: /tmp/patch/cloud.rb
-          content: { get_file: https://raw.githubusercontent.com/UKCloud/cloudfoundry-on-openstack/master/files/patch/cloud.rb }
+                STEMCELL_VERSION: { get_param: bosh_stemcell_version }
+              template: { get_file: files/settings.yml }
 
   stack_continue:
     type: OS::Heat::WaitCondition
     properties:
       handle: { get_resource: stack_continue_handle }
-      timeout: 240
+      timeout: 600
+      count: 1
 
   stack_continue_handle:
     type: OS::Heat::WaitConditionHandle

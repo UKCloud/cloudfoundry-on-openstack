@@ -9,7 +9,8 @@ if [ -x environment.yaml ]; then
 else
   echo "environment file not written!"
 fi
-
+pwd
+ls
 
 echo "DEPLOYING INITIAL STACK"
 

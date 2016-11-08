@@ -3,7 +3,7 @@
 echo "IN DEPLOY SCRIPT"
 
 echo "SETTING ENVIRONMENT FILE"
-sudo spec/fixtures/write_environment_yaml.py
+spec/fixtures/write_environment_yaml.py
 if [ -x environment.yaml ]; then
   echo "environment file written"
 else
